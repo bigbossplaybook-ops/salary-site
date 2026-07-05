@@ -1,0 +1,887 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import citiesData from "../../../../scripts/cities.json";
+
+export async function getStaticPaths() {
+  const occupations = [
+    { slug: "software-developer", label: "Software Developer",
+      wages: { p10: 65000, p25: 85000, median: 120000, p75: 155000, p90: 188000 } },
+    { slug: "registered-nurse", label: "Registered Nurse",
+      wages: { p10: 52000, p25: 62000, median: 77600, p75: 96000, p90: 118000 } },
+    { slug: "financial-analyst", label: "Financial Analyst",
+      wages: { p10: 51000, p25: 67000, median: 95570, p75: 131000, p90: 166000 } },
+    { slug: "teacher", label: "Teacher (K-12)",
+      wages: { p10: 38000, p25: 48000, median: 61820, p75: 77000, p90: 94000 } },
+    { slug: "mechanical-engineer", label: "Mechanical Engineer",
+      wages: { p10: 61000, p25: 76000, median: 96310, p75: 119000, p90: 144000 } },
+    { slug: "marketing-manager", label: "Marketing Manager",
+      wages: { p10: 76000, p25: 102000, median: 140040, p75: 185000, p90: 208000 } },
+    { slug: "accountant", label: "Accountant",
+      wages: { p10: 45000, p25: 57000, median: 77250, p75: 101000, p90: 128000 } },
+    { slug: "data-scientist", label: "Data Scientist",
+      wages: { p10: 68000, p25: 86000, median: 108020, p75: 136000, p90: 167000 } },
+    { slug: "electrician", label: "Electrician",
+      wages: { p10: 36000, p25: 46000, median: 61590, p75: 80000, p90: 99000 } },
+    { slug: "physical-therapist", label: "Physical Therapist",
+      wages: { p10: 69000, p25: 82000, median: 97720, p75: 113000, p90: 129000 } },
+    { slug: "sales-manager", label: "Sales Manager",
+      wages: { p10: 63000, p25: 92000, median: 130600, p75: 181000, p90: 208000 } },
+    { slug: "human-resources-manager", label: "Human Resources Manager",
+      wages: { p10: 71000, p25: 95000, median: 126230, p75: 164000, p90: 208000 } },
+    { slug: "graphic-designer", label: "Graphic Designer",
+      wages: { p10: 33000, p25: 44000, median: 58910, p75: 77000, p90: 99000 } },
+    { slug: "truck-driver", label: "Truck Driver",
+      wages: { p10: 31000, p25: 39000, median: 49920, p75: 62000, p90: 76000 } },
+    { slug: "dentist", label: "Dentist",
+      wages: { p10: 82000, p25: 115000, median: 163220, p75: 208000, p90: 208000 } },
+    { slug: "lawyer", label: "Lawyer",
+      wages: { p10: 61000, p25: 91000, median: 148030, p75: 208000, p90: 208000 } },
+    { slug: "pharmacist", label: "Pharmacist",
+      wages: { p10: 97000, p25: 118000, median: 132750, p75: 152000, p90: 164000 } },
+    { slug: "civil-engineer", label: "Civil Engineer",
+      wages: { p10: 57000, p25: 72000, median: 92560, p75: 116000, p90: 143000 } },
+    { slug: "real-estate-agent", label: "Real Estate Agent",
+      wages: { p10: 26000, p25: 35000, median: 56620, p75: 87000, p90: 120000 } },
+    { slug: "cybersecurity-analyst", label: "Cybersecurity Analyst",
+      wages: { p10: 65000, p25: 83000, median: 112000, p75: 144000, p90: 174000 } },
+  ];
+
+  // Cost-of-living multipliers per city (relative to national average of 1.0)
+  const cityMultipliers: Record<string, number> = {};
+  citiesData.forEach((city: any) => {
+    cityMultipliers[city.slug] = city.costMultiplier ?? 1.0;
+  });
+
+  const paths = [];
+  for (const occ of occupations) {
+    for (const city of citiesData as any[]) {
+      const mult = city.costMultiplier ?? 1.0;
+      const wages = {
+        p10:    Math.round(occ.wages.p10    * mult / 1000) * 1000,
+        p25:    Math.round(occ.wages.p25    * mult / 1000) * 1000,
+        median: Math.round(occ.wages.median * mult / 1000) * 1000,
+        p75:    Math.round(occ.wages.p75    * mult / 1000) * 1000,
+        p90:    Math.round(occ.wages.p90    * mult / 1000) * 1000,
+      };
+      paths.push({
+        params: { occupation: occ.slug, location: city.slug },
+        props: {
+          occupation: occ,
+          city,
+          wages,
+        },
+      });
+    }
+  }
+  return paths;
+}
+
+const { occupation, city, wages } = Astro.props;
+const currentYear = new Date().getFullYear();
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+const pageTitle = `${occupation.label} Salary in ${city.name}, ${city.stateAbbr} (${currentYear})`;
+const pageDesc = `The average ${occupation.label} salary in ${city.name}, ${city.state} is ${fmt(wages.median)} per year in ${currentYear}. Explore the full salary range from entry-level to senior positions.`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": `What is the average ${occupation.label} salary in ${city.name}, ${city.state}?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `The average ${occupation.label} salary in ${city.name}, ${city.state} is ${fmt(wages.median)} per year as of ${currentYear}. Entry-level positions start around ${fmt(wages.p10)}, while experienced professionals can earn up to ${fmt(wages.p90)}.`,
+      },
+    },
+    {
+      "@type": "Question",
+      "name": `What is the highest paid ${occupation.label} salary in ${city.name}?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `The top 10% of ${occupation.label}s in ${city.name}, ${city.state} earn ${fmt(wages.p90)} or more per year.`,
+      },
+    },
+  ],
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": Astro.site?.href ?? "/" },
+    { "@type": "ListItem", "position": 2, "name": `${occupation.label} Salary`, "item": `${Astro.site?.href ?? ""}salary/${occupation.slug}/` },
+    { "@type": "ListItem", "position": 3, "name": city.name, "item": `${Astro.site?.href ?? ""}salary/${occupation.slug}/${city.slug}` },
+  ],
+};
+
+const affiliateSearchUrl = `https://www.indeed.com/jobs?q=${encodeURIComponent(occupation.label)}&l=${encodeURIComponent(city.name + ", " + city.stateAbbr)}`;
+const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(occupation.label)}&location=${encodeURIComponent(city.name + ", " + city.state)}`;
+const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=${encodeURIComponent(occupation.label)}&sc.keyword=${encodeURIComponent(occupation.label)}&locT=C&locId=&jobType=`;
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  jsonLd={[jsonLd, breadcrumbJsonLd]}
+>
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-wrap">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href={`/salary/${occupation.slug}/${city.slug}`}>{occupation.label}</a>
+        <span aria-hidden="true">›</span>
+        <span>{city.name}, {city.stateAbbr}</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="page-header-inner">
+        <h1>{occupation.label} Salary in {city.name}, {city.stateAbbr} ({currentYear})</h1>
+        <p class="page-sub">
+          Based on Bureau of Labor Statistics occupational wage data adjusted for {city.name} cost of living.
+          Last updated <time datetime={`${currentYear}-01-01`}>{currentYear}</time>.
+        </p>
+      </div>
+      <div class="salary-hero-stat">
+        <div class="stat-label">Median Annual Salary</div>
+        <div class="stat-value">{fmt(wages.median)}</div>
+        <div class="stat-city">{city.name}, {city.state}</div>
+      </div>
+    </header>
+
+    <div class="page-layout">
+      <!-- Main Content -->
+      <div class="main-col">
+
+        <!-- Salary Summary Cards -->
+        <section class="salary-cards">
+          <div class="summary-card low">
+            <div class="sc-label">Entry Level (10th pct.)</div>
+            <div class="sc-value">{fmt(wages.p10)}</div>
+            <div class="sc-note">0–2 years experience</div>
+          </div>
+          <div class="summary-card mid">
+            <div class="sc-label">25th Percentile</div>
+            <div class="sc-value">{fmt(wages.p25)}</div>
+            <div class="sc-note">Below average earner</div>
+          </div>
+          <div class="summary-card median highlight">
+            <div class="sc-label">Median (50th pct.)</div>
+            <div class="sc-value">{fmt(wages.median)}</div>
+            <div class="sc-note">Typical earner</div>
+          </div>
+          <div class="summary-card high">
+            <div class="sc-label">75th Percentile</div>
+            <div class="sc-value">{fmt(wages.p75)}</div>
+            <div class="sc-note">Above average earner</div>
+          </div>
+          <div class="summary-card top">
+            <div class="sc-label">Top Earner (90th pct.)</div>
+            <div class="sc-value">{fmt(wages.p90)}</div>
+            <div class="sc-note">5+ years experience</div>
+          </div>
+        </section>
+
+        <!-- Salary Data Table -->
+        <section class="data-section card">
+          <h2>
+            {occupation.label} Salary Breakdown — {city.name}, {city.stateAbbr}
+          </h2>
+          <p class="section-intro">
+            The table below shows how {occupation.label} salaries in {city.name} distribute across experience levels and pay percentiles in {currentYear}.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Percentile</th>
+                  <th>Annual Salary</th>
+                  <th>Monthly</th>
+                  <th>Hourly (est.)</th>
+                  <th>Profile</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="pct-badge">10th</span></td>
+                  <td class="salary-cell">{fmt(wages.p10)}</td>
+                  <td>{fmt(Math.round(wages.p10 / 12))}</td>
+                  <td>{fmt(Math.round(wages.p10 / 2080))}</td>
+                  <td>Entry-level, new graduate</td>
+                </tr>
+                <tr>
+                  <td><span class="pct-badge">25th</span></td>
+                  <td class="salary-cell">{fmt(wages.p25)}</td>
+                  <td>{fmt(Math.round(wages.p25 / 12))}</td>
+                  <td>{fmt(Math.round(wages.p25 / 2080))}</td>
+                  <td>1–3 years experience</td>
+                </tr>
+                <tr class="row-highlight">
+                  <td><span class="pct-badge median-badge">Median</span></td>
+                  <td class="salary-cell"><strong>{fmt(wages.median)}</strong></td>
+                  <td><strong>{fmt(Math.round(wages.median / 12))}</strong></td>
+                  <td><strong>{fmt(Math.round(wages.median / 2080))}</strong></td>
+                  <td>Mid-career professional</td>
+                </tr>
+                <tr>
+                  <td><span class="pct-badge">75th</span></td>
+                  <td class="salary-cell">{fmt(wages.p75)}</td>
+                  <td>{fmt(Math.round(wages.p75 / 12))}</td>
+                  <td>{fmt(Math.round(wages.p75 / 2080))}</td>
+                  <td>Experienced professional</td>
+                </tr>
+                <tr>
+                  <td><span class="pct-badge top-badge">90th</span></td>
+                  <td class="salary-cell">{fmt(wages.p90)}</td>
+                  <td>{fmt(Math.round(wages.p90 / 12))}</td>
+                  <td>{fmt(Math.round(wages.p90 / 2080))}</td>
+                  <td>Senior / specialist</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="data-source">
+            Source: U.S. Bureau of Labor Statistics Occupational Employment and Wage Statistics (OEWS), adjusted for {city.name} regional cost of living. Data as of {currentYear}.
+          </p>
+        </section>
+
+        <!-- Salary Bar Chart (CSS-only) -->
+        <section class="data-section card">
+          <h2>Visual Salary Distribution</h2>
+          <div class="bar-chart">
+            {[
+              { label: "10th pct.", value: wages.p10, max: wages.p90 },
+              { label: "25th pct.", value: wages.p25, max: wages.p90 },
+              { label: "Median",    value: wages.median, max: wages.p90 },
+              { label: "75th pct.", value: wages.p75, max: wages.p90 },
+              { label: "90th pct.", value: wages.p90, max: wages.p90 },
+            ].map(row => (
+              <div class="bar-row">
+                <span class="bar-label">{row.label}</span>
+                <div class="bar-track">
+                  <div
+                    class={`bar-fill ${row.label === "Median" ? "bar-median" : ""}`}
+                    style={`width: ${Math.round((row.value / row.max) * 100)}%`}
+                  />
+                </div>
+                <span class="bar-val">{fmt(row.value)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Factors affecting salary -->
+        <section class="data-section card">
+          <h2>What Affects {occupation.label} Salaries in {city.name}?</h2>
+          <ul class="factor-list">
+            <li>
+              <strong>Experience:</strong> Entry-level professionals earn significantly less than their senior counterparts. In {city.name}, the gap between the 10th and 90th percentile is {fmt(wages.p90 - wages.p10)}.
+            </li>
+            <li>
+              <strong>Industry:</strong> {occupation.label}s working in high-demand industries such as technology, finance, and healthcare often command salaries above the median.
+            </li>
+            <li>
+              <strong>Education & Certifications:</strong> Advanced degrees and relevant professional certifications can move your salary into the upper quartile.
+            </li>
+            <li>
+              <strong>Company size:</strong> Larger organizations typically offer higher compensation packages, including bonuses and equity.
+            </li>
+            <li>
+              <strong>Location within {city.name}:</strong> Employers in downtown/central business districts or tech corridors often pay more than suburban offices.
+            </li>
+          </ul>
+        </section>
+
+        <!-- Find Jobs (Affiliate) -->
+        <section class="affiliate-section card" id="find-jobs">
+          <h2>🚀 Find {occupation.label} Jobs in {city.name}, {city.stateAbbr}</h2>
+          <p>
+            Ready to put this salary data to work? Browse open {occupation.label} positions in {city.name} right now on the top job boards.
+          </p>
+          <div class="affiliate-grid">
+            <a href={affiliateSearchUrl} target="_blank" rel="noopener noreferrer" class="affiliate-btn indeed">
+              <span class="btn-logo">🔍</span>
+              <div class="btn-text">
+                <span class="btn-title">Search on Indeed</span>
+                <span class="btn-sub">{occupation.label} jobs in {city.name}</span>
+              </div>
+              <span class="btn-arrow">↗</span>
+            </a>
+            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="affiliate-btn linkedin">
+              <span class="btn-logo">💼</span>
+              <div class="btn-text">
+                <span class="btn-title">Search on LinkedIn</span>
+                <span class="btn-sub">Connect with {city.name} employers</span>
+              </div>
+              <span class="btn-arrow">↗</span>
+            </a>
+            <a href={glassdoorUrl} target="_blank" rel="noopener noreferrer" class="affiliate-btn glassdoor">
+              <span class="btn-logo">🚪</span>
+              <div class="btn-text">
+                <span class="btn-title">Glassdoor Listings</span>
+                <span class="btn-sub">Reviews + salary data combined</span>
+              </div>
+              <span class="btn-arrow">↗</span>
+            </a>
+          </div>
+          <p class="affiliate-note">
+            ℹ️ These links may include affiliate tracking. Using them helps support SalaryInsights at no cost to you.
+          </p>
+        </section>
+
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar-col">
+        <div class="sidebar-card card sticky-card">
+          <h3>Quick Stats</h3>
+          <dl class="quick-stats">
+            <dt>Occupation</dt>
+            <dd>{occupation.label}</dd>
+            <dt>Location</dt>
+            <dd>{city.name}, {city.state}</dd>
+            <dt>Median Salary</dt>
+            <dd class="highlight-stat">{fmt(wages.median)}/yr</dd>
+            <dt>Hourly Rate</dt>
+            <dd>{fmt(Math.round(wages.median / 2080))}/hr</dd>
+            <dt>Monthly Pay</dt>
+            <dd>{fmt(Math.round(wages.median / 12))}/mo</dd>
+            <dt>Data Year</dt>
+            <dd>{currentYear}</dd>
+          </dl>
+          <a href={affiliateSearchUrl} target="_blank" rel="noopener noreferrer" class="sidebar-cta">
+            Find {occupation.label} Jobs →
+          </a>
+        </div>
+
+        <div class="sidebar-card card">
+          <h3>Related Occupations</h3>
+          <ul class="related-list">
+            {[
+              "software-developer",
+              "data-scientist",
+              "financial-analyst",
+              "marketing-manager",
+              "cybersecurity-analyst",
+            ]
+              .filter(s => s !== occupation.slug)
+              .slice(0, 4)
+              .map(slug => {
+                const label = slug.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+                return (
+                  <li>
+                    <a href={`/salary/${slug}/${city.slug}`}>
+                      {label} in {city.name}
+                    </a>
+                  </li>
+                );
+              })}
+          </ul>
+        </div>
+
+        <div class="sidebar-card card">
+          <h3>Same Job, Other Cities</h3>
+          <ul class="related-list">
+            {(citiesData as any[])
+              .filter(c => c.slug !== city.slug)
+              .slice(0, 6)
+              .map(c => (
+                <li>
+                  <a href={`/salary/${occupation.slug}/${c.slug}`}>
+                    {occupation.label} in {c.name}, {c.stateAbbr}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* Breadcrumb */
+  .breadcrumb-wrap {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.625rem 0;
+    font-size: 0.8125rem;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-text-muted);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--color-primary);
+  }
+
+  .breadcrumb span:not([aria-hidden]) {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  /* Page Header */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .page-header-inner {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .page-header h1 {
+    font-size: clamp(1.375rem, 3vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.625rem;
+  }
+
+  .page-sub {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .salary-hero-stat {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .stat-city {
+    font-size: 0.8125rem;
+    opacity: 0.75;
+    margin-top: 0.375rem;
+  }
+
+  /* Layout */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar-col {
+      order: -1;
+    }
+  }
+
+  .sticky-card {
+    position: sticky;
+    top: 80px;
+  }
+
+  /* Salary summary cards */
+  .salary-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 750px) {
+    .salary-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .summary-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .summary-card.highlight {
+    border-color: var(--color-primary);
+    background: #eff6ff;
+  }
+
+  .sc-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.375rem;
+  }
+
+  .sc-value {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .summary-card.highlight .sc-value {
+    color: var(--color-primary);
+  }
+
+  .sc-note {
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Data sections */
+  .data-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .data-section h2 {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    margin-bottom: 0.625rem;
+  }
+
+  .section-intro {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead {
+    background: #f3f4f6;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  td {
+    padding: 0.75rem 0.875rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .row-highlight {
+    background: #eff6ff;
+  }
+
+  .salary-cell {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .pct-badge {
+    display: inline-block;
+    padding: 0.175rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+  }
+
+  .median-badge {
+    background: #dbeafe;
+    color: var(--color-primary);
+    border-color: #93c5fd;
+  }
+
+  .top-badge {
+    background: #d1fae5;
+    color: #059669;
+    border-color: #6ee7b7;
+  }
+
+  .data-source {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 0.875rem;
+    font-style: italic;
+  }
+
+  /* Bar chart */
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 100px;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .bar-label {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  .bar-track {
+    background: #e5e7eb;
+    border-radius: 999px;
+    height: 18px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  .bar-median {
+    background: var(--color-secondary);
+  }
+
+  .bar-val {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  /* Factor list */
+  .factor-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    margin-top: 1rem;
+  }
+
+  .factor-list li {
+    padding: 0.875rem 1rem;
+    background: #f9fafb;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--color-primary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .factor-list li strong {
+    color: var(--color-primary);
+  }
+
+  /* Affiliate section */
+  .affiliate-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .affiliate-section > p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .affiliate-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .affiliate-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: transform 0.1s, box-shadow 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .affiliate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+  }
+
+  .indeed {
+    background: #003a9b;
+    color: white;
+  }
+
+  .linkedin {
+    background: #0a66c2;
+    color: white;
+  }
+
+  .glassdoor {
+    background: #0caa41;
+    color: white;
+  }
+
+  .btn-logo {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .btn-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .btn-title {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .btn-sub {
+    font-size: 0.8125rem;
+    opacity: 0.85;
+  }
+
+  .btn-arrow {
+    font-size: 1.125rem;
+    opacity: 0.7;
+  }
+
+  .affiliate-note {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 1rem;
+    font-style: italic;
+  }
+
+  /* Sidebar */
+  .sidebar-card {
+    margin-bottom: 1.25rem;
+  }
+
+  .sidebar-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .quick-stats {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.375rem 1rem;
+    font-size: 0.875rem;
+    align-items: baseline;
+  }
+
+  .quick-stats dt {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .quick-stats dd {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .quick-stats dd.highlight-stat {
+    color: var(--color-primary);
+    font-size: 1rem;
+  }
+
+  .sidebar-cta {
+    display: block;
+    margin-top: 1.25rem;
+    background: var(--color-primary);
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+
+  .sidebar-cta:hover {
+    background: var(--color-primary-dark);
+    text-decoration: none;
+  }
+
+  .related-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .related-list li a {
+    font-size: 0.875rem;
+    display: block;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    color: var(--color-primary);
+  }
+
+  .related-list li:last-child a {
+    border-bottom: none;
+  }
+</style>

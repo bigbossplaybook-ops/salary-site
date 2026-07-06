@@ -1,0 +1,1 @@
+The package-lock.json blocker is fixed — it has been committed to main. Proceed with Phase 2. Extend the existing Astro dynamic route pattern to add the 10 exec job titles and 50 metros from the mission brief in CLAUDE.md. Do not replace the existing occupations — add to them. Begin now and do not stop until all phases are complete.

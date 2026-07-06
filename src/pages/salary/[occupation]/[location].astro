@@ -1,6 +1,10 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import ExecSalaryPage from "../../../components/ExecSalaryPage.astro";
 import citiesData from "../../../../scripts/cities.json";
+import { execRoles } from "../../../data/exec-roles.mjs";
+import { metros } from "../../../data/metros.mjs";
+import { buildFaq, fmt as fmtUsd } from "../../../lib/narrative.mjs";
 
 export async function getStaticPaths() {
   const occupations = [
@@ -53,8 +57,11 @@ export async function getStaticPaths() {
   });
 
   const paths = [];
+  const allCities = citiesData as any[];
   for (const occ of occupations) {
-    for (const city of citiesData as any[]) {
+    const occIdx = occupations.findIndex((o) => o.slug === occ.slug);
+    for (let cityIdx = 0; cityIdx < allCities.length; cityIdx++) {
+      const city = allCities[cityIdx];
       const mult = city.costMultiplier ?? 1.0;
       const wages = {
         p10:    Math.round(occ.wages.p10    * mult / 1000) * 1000,
@@ -63,29 +70,100 @@ export async function getStaticPaths() {
         p75:    Math.round(occ.wages.p75    * mult / 1000) * 1000,
         p90:    Math.round(occ.wages.p90    * mult / 1000) * 1000,
       };
+      // Deterministic rotating link sets so every page receives inbound links
+      // (the old "first 6 cities / fixed 5 occupations" scheme left most pages
+      // with zero inbound). Mirrored in src/pages/internal-links.json.ts.
+      const relatedOccs = [];
+      for (let k = 1; relatedOccs.length < 4; k++) {
+        const cand = occupations[(occIdx + cityIdx + k) % occupations.length];
+        if (cand.slug !== occ.slug && !relatedOccs.includes(cand)) relatedOccs.push(cand);
+      }
+      const otherCities = [];
+      for (let k = 1; k <= 6; k++) {
+        otherCities.push(allCities[(cityIdx + k) % allCities.length]);
+      }
       paths.push({
         params: { occupation: occ.slug, location: city.slug },
         props: {
           occupation: occ,
           city,
           wages,
+          relatedOccs: relatedOccs.map((o) => ({ slug: o.slug, label: o.label })),
+          otherCities: otherCities.map((c) => ({ slug: c.slug, name: c.name, stateAbbr: c.stateAbbr })),
         },
+      });
+    }
+  }
+
+  // Boss Playbook executive pages: 10 exec roles × 50 target metros.
+  // Wages anchor to BLS OEWS via exec-roles.mjs and localize with the same
+  // costMultiplier model the legacy pages use.
+  const cityBySlug = Object.fromEntries(citiesData.map((c: any) => [c.slug, c]));
+  for (const role of execRoles) {
+    for (const metro of metros) {
+      const city = cityBySlug[metro.slug];
+      if (!city) throw new Error(`metro ${metro.slug} missing from cities.json`);
+      const mult = city.costMultiplier ?? 1.0;
+      const wages = {
+        p10:    Math.round(role.wages.p10    * mult / 1000) * 1000,
+        p25:    Math.round(role.wages.p25    * mult / 1000) * 1000,
+        median: Math.round(role.wages.median * mult / 1000) * 1000,
+        p75:    Math.round(role.wages.p75    * mult / 1000) * 1000,
+        p90:    Math.round(role.wages.p90    * mult / 1000) * 1000,
+      };
+      paths.push({
+        params: { occupation: role.slug, location: metro.slug },
+        props: { pageType: "exec", role, metro, city, wages },
       });
     }
   }
   return paths;
 }
 
-const { occupation, city, wages } = Astro.props;
+const { occupation, city, wages, pageType, role, metro, relatedOccs, otherCities } = Astro.props;
 const currentYear = new Date().getFullYear();
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-const pageTitle = `${occupation.label} Salary in ${city.name}, ${city.stateAbbr} (${currentYear})`;
-const pageDesc = `The average ${occupation.label} salary in ${city.name}, ${city.state} is ${fmt(wages.median)} per year in ${currentYear}. Explore the full salary range from entry-level to senior positions.`;
+const isExec = pageType === "exec";
 
-const jsonLd = {
+let pageTitle: string;
+let pageDesc: string;
+let pageJsonLd: object[];
+
+if (isExec) {
+  pageTitle = `${role.label} Salary in ${city.name} (${currentYear} Guide) | Boss Playbook`;
+  pageDesc = `${role.label} salary in ${city.name}: ${fmtUsd(wages.median)} median in ${currentYear}, percentile ranges, top-paying skills, and how to negotiate the offer.`;
+  if (pageDesc.length > 155) pageDesc = pageDesc.slice(0, 152).replace(/,?\s+\S*$/, "") + "…";
+
+  const faq = buildFaq({ role, metro, city, wages, year: currentYear });
+  pageJsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faq.map((f) => ({
+        "@type": "Question",
+        "name": f.q,
+        "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": Astro.site?.href ?? "/" },
+        { "@type": "ListItem", "position": 2, "name": `${role.label} Salary`, "item": `${Astro.site?.href ?? ""}salary/${role.slug}/` },
+        { "@type": "ListItem", "position": 3, "name": city.name, "item": `${Astro.site?.href ?? ""}salary/${role.slug}/${metro.slug}` },
+      ],
+    },
+  ];
+} else {
+  pageTitle = `${occupation.label} Salary in ${city.name}, ${city.stateAbbr} (${currentYear})`;
+  pageDesc = `The average ${occupation.label} salary in ${city.name}, ${city.state} is ${fmt(wages.median)} per year in ${currentYear}. Explore the full salary range from entry-level to senior positions.`;
+}
+
+const jsonLd = isExec ? null : {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
@@ -108,7 +186,7 @@ const jsonLd = {
   ],
 };
 
-const breadcrumbJsonLd = {
+const breadcrumbJsonLd = isExec ? null : {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
@@ -118,11 +196,16 @@ const breadcrumbJsonLd = {
   ],
 };
 
-const affiliateSearchUrl = `https://www.indeed.com/jobs?q=${encodeURIComponent(occupation.label)}&l=${encodeURIComponent(city.name + ", " + city.stateAbbr)}`;
-const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(occupation.label)}&location=${encodeURIComponent(city.name + ", " + city.state)}`;
-const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=${encodeURIComponent(occupation.label)}&sc.keyword=${encodeURIComponent(occupation.label)}&locT=C&locId=&jobType=`;
+const affiliateSearchUrl = isExec ? "" : `https://www.indeed.com/jobs?q=${encodeURIComponent(occupation.label)}&l=${encodeURIComponent(city.name + ", " + city.stateAbbr)}`;
+const linkedinUrl = isExec ? "" : `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(occupation.label)}&location=${encodeURIComponent(city.name + ", " + city.state)}`;
+const glassdoorUrl = isExec ? "" : `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=${encodeURIComponent(occupation.label)}&sc.keyword=${encodeURIComponent(occupation.label)}&locT=C&locId=&jobType=`;
 ---
 
+{isExec ? (
+  <Layout title={pageTitle} description={pageDesc} jsonLd={pageJsonLd}>
+    <ExecSalaryPage role={role} metro={metro} city={city} wages={wages} year={currentYear} />
+  </Layout>
+) : (
 <Layout
   title={pageTitle}
   description={pageDesc}
@@ -141,7 +224,7 @@ const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&sugg
     </div>
   </div>
 
-  <div class="container">
+  <div class="container" data-occupation={occupation.slug} data-location={city.slug}>
     <!-- Page Header -->
     <header class="page-header">
       <div class="page-header-inner">
@@ -153,7 +236,7 @@ const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&sugg
       </div>
       <div class="salary-hero-stat">
         <div class="stat-label">Median Annual Salary</div>
-        <div class="stat-value">{fmt(wages.median)}</div>
+        <div class="stat-value" data-salary="median">{fmt(wages.median)}</div>
         <div class="stat-city">{city.name}, {city.state}</div>
       </div>
     </header>
@@ -166,27 +249,27 @@ const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&sugg
         <section class="salary-cards">
           <div class="summary-card low">
             <div class="sc-label">Entry Level (10th pct.)</div>
-            <div class="sc-value">{fmt(wages.p10)}</div>
+            <div class="sc-value" data-salary="p10">{fmt(wages.p10)}</div>
             <div class="sc-note">0–2 years experience</div>
           </div>
           <div class="summary-card mid">
             <div class="sc-label">25th Percentile</div>
-            <div class="sc-value">{fmt(wages.p25)}</div>
+            <div class="sc-value" data-salary="p25">{fmt(wages.p25)}</div>
             <div class="sc-note">Below average earner</div>
           </div>
           <div class="summary-card median highlight">
             <div class="sc-label">Median (50th pct.)</div>
-            <div class="sc-value">{fmt(wages.median)}</div>
+            <div class="sc-value" data-salary="median">{fmt(wages.median)}</div>
             <div class="sc-note">Typical earner</div>
           </div>
           <div class="summary-card high">
             <div class="sc-label">75th Percentile</div>
-            <div class="sc-value">{fmt(wages.p75)}</div>
+            <div class="sc-value" data-salary="p75">{fmt(wages.p75)}</div>
             <div class="sc-note">Above average earner</div>
           </div>
           <div class="summary-card top">
             <div class="sc-label">Top Earner (90th pct.)</div>
-            <div class="sc-value">{fmt(wages.p90)}</div>
+            <div class="sc-value" data-salary="p90">{fmt(wages.p90)}</div>
             <div class="sc-note">5+ years experience</div>
           </div>
         </section>
@@ -366,47 +449,34 @@ const glassdoorUrl = `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&sugg
         <div class="sidebar-card card">
           <h3>Related Occupations</h3>
           <ul class="related-list">
-            {[
-              "software-developer",
-              "data-scientist",
-              "financial-analyst",
-              "marketing-manager",
-              "cybersecurity-analyst",
-            ]
-              .filter(s => s !== occupation.slug)
-              .slice(0, 4)
-              .map(slug => {
-                const label = slug.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
-                return (
-                  <li>
-                    <a href={`/salary/${slug}/${city.slug}`}>
-                      {label} in {city.name}
-                    </a>
-                  </li>
-                );
-              })}
+            {relatedOccs.map((o: any) => (
+              <li>
+                <a href={`/salary/${o.slug}/${city.slug}`}>
+                  {o.label} in {city.name}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
         <div class="sidebar-card card">
           <h3>Same Job, Other Cities</h3>
           <ul class="related-list">
-            {(citiesData as any[])
-              .filter(c => c.slug !== city.slug)
-              .slice(0, 6)
-              .map(c => (
-                <li>
-                  <a href={`/salary/${occupation.slug}/${c.slug}`}>
-                    {occupation.label} in {c.name}, {c.stateAbbr}
-                  </a>
-                </li>
-              ))}
+            {otherCities.map((c: any) => (
+              <li>
+                <a href={`/salary/${occupation.slug}/${c.slug}`}>
+                  {occupation.label} in {c.name}, {c.stateAbbr}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>
     </div>
   </div>
+  <script src="/js/salary-hydrate.js" defer></script>
 </Layout>
+)}
 
 <style>
   /* Breadcrumb */

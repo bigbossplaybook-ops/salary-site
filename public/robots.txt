@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://salary-site-49i.pages.dev/sitemap.xml

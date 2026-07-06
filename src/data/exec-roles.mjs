@@ -1,0 +1,348 @@
+// Boss Playbook executive roles — data layer for /salary/[role]/[metro] pages.
+//
+// Wage model: national figures are anchored to BLS OEWS May 2025 national data
+// (see scripts/data/bls-oews-2025.json) with a documented title premium applied
+// where the exec title is narrower than its SOC anchor (e.g. "VP of Engineering"
+// vs. SOC 11-9041 Architectural & Engineering Managers). Per-metro figures are
+// national × the metro costMultiplier in scripts/cities.json — same model the
+// rest of the site uses.
+//
+// Skills and related-title data are curated from O*NET published SOC profiles
+// (onetonline.org). Direct O*NET Web Services access requires a registered key
+// (registration needs human email verification) — documented blocker; the
+// curation is the workaround.
+
+export const execRoles = [
+  {
+    slug: "general-manager",
+    label: "General Manager",
+    short: "GM",
+    soc: "11-1021",
+    socTitle: "General and Operations Managers",
+    titlePremium: 1.49,
+    premiumNote:
+      "BLS 11-1021 blends retail shift GMs with business-unit GMs running nine-figure P&Ls; Boss Playbook figures reflect the latter.",
+    wages: { p10: 92000, p25: 121000, median: 158000, p75: 208000, p90: 285000 },
+    bls: { p10: 50090, median: 105770, p90: 253390, employment: 3503020 },
+    skills: [
+      { name: "P&L management", why: "Owning the full income statement — not a cost center — is the single biggest comp separator for GMs. A GM who has grown EBITDA gets paid on results, not tenure." },
+      { name: "Judgment and decision making", why: "O*NET ranks it top for the SOC, and comp committees agree: GMs are paid for the calls nobody above them wants to make." },
+      { name: "Operations analysis", why: "GMs who can find margin in the operating model — pricing, capacity, vendor terms — justify their own premium within a quarter." },
+      { name: "Talent development", why: "A GM who exports leaders to the rest of the company becomes strategically expensive to lose. Retention grants follow." },
+      { name: "Negotiation", why: "Commercial negotiation shows up in the number directly. GMs who close enterprise deals or renegotiate supply carry a revenue-linked bonus that others don't." },
+    ],
+    related: ["director-of-operations", "chief-of-staff", "vp-of-finance"],
+    movesIt: [
+      "Scope of P&L. A GM running a $30M business unit and a GM running a $500M one share a title and nothing else. Revenue responsibility is the first number a comp committee looks at.",
+      "Stage of company. Private-equity-backed operators trade base for equity and an exit multiple; public-company GMs get predictable cash and RSUs. Same title, very different risk curves.",
+      "Headcount and span. Direct control of 200+ people signals an operator, not an administrator — and it prices accordingly.",
+      "Industry margin structure. GMs in software and financial services out-earn GMs in distribution and hospitality because the margin they manage is worth more per point.",
+    ],
+    negotiate: [
+      "Anchor on scope, not salary. Get the P&L size, headcount, and growth mandate on the table first — then let the number follow from what the business is worth.",
+      "Negotiate the bonus mechanics harder than the base. A 40% target bonus with soft triggers beats a 25% bonus with hard ones. Ask exactly how last year's plan paid out — if they dodge, that's your answer.",
+      "Price the downside. GM roles get restructured. A 12-month severance with accelerated vesting costs them nothing today and protects you from a strategy change you don't control.",
+      "If it's PE-backed, model the equity at the sponsor's target multiple and at 1x. Take the job only if the 1x case still works for you.",
+    ],
+    faqAngle: "whether the role owns a full P&L",
+  },
+  {
+    slug: "vp-of-engineering",
+    label: "VP of Engineering",
+    short: "VP Eng",
+    soc: "11-9041",
+    socTitle: "Architectural and Engineering Managers",
+    titlePremium: 1.35,
+    premiumNote:
+      "SOC 11-9041 spans all engineering management; software VPs at venture-scale companies price above the anchor.",
+    wages: { p10: 152000, p25: 185000, median: 231000, p75: 282000, p90: 342000 },
+    bls: { p10: 120810, median: 171270, p90: 262760, employment: 220260 },
+    skills: [
+      { name: "Engineering org design", why: "Companies pay a premium for VPs who have scaled a team through a doubling — twice. Org design failures are the most expensive mistakes in tech." },
+      { name: "Systems evaluation", why: "O*NET's top-ranked skill for the SOC. Translating architecture risk into board language is what separates a VP from a very senior manager." },
+      { name: "Hiring and calibration", why: "A VP who raises the hiring bar changes the cost curve of the whole department. That skill compounds and comp follows it." },
+      { name: "Delivery management", why: "Predictable shipping against a roadmap is rarer than it should be. VPs with a reputation for it command retention packages." },
+      { name: "Vendor and cloud economics", why: "Cutting seven figures of cloud spend pays for the VP several times over — and every CFO knows it." },
+    ],
+    related: ["chief-technology-officer", "software-engineering-manager", "director-of-data-science"],
+    movesIt: [
+      "Team scale. Comp scales in steps: ~30 engineers, ~80, 150+. Each threshold is a different job and a different pay band.",
+      "Equity stage. Series B VPs take 0.5–1.5% and below-market cash; late-stage and public VPs flip that ratio. The title hides a 2x total-comp spread.",
+      "Platform vs. product ownership. VPs who own infrastructure and security carry pager-duty-grade accountability, and the market prices that risk in.",
+      "Proximity to revenue. Engineering orgs that ship the product customers pay for out-earn internal-tools orgs at the same headcount.",
+    ],
+    negotiate: [
+      "Never negotiate a VP Eng offer on base alone. The refresh grant policy matters more than the initial grant by year three — ask for it in writing.",
+      "Ask how many engineers the plan assumes in 18 months. If they say double, you're being hired to build a bigger org than you're being paid for. Reprice.",
+      "Trade cash for equity only with information: current preferred price, option strike, last 409A, and the preference stack. A VP who won't ask is telling them something.",
+      "Get the CTO relationship defined before you sign — who owns architecture, who owns headcount. Ambiguity there is how VPs get layered a year in.",
+    ],
+    faqAngle: "how team size changes the band",
+  },
+  {
+    slug: "chief-technology-officer",
+    label: "Chief Technology Officer",
+    short: "CTO",
+    soc: "11-1011",
+    socTitle: "Chief Executives",
+    titlePremium: 1.15,
+    premiumNote:
+      "Anchored to the C-suite SOC; cash figures exclude equity, which at venture-backed companies routinely exceeds salary.",
+    wages: { p10: 148000, p25: 192000, median: 247000, p75: 318000, p90: 415000 },
+    bls: { p10: 75700, median: 213990, p90: 507730, employment: 204350 },
+    skills: [
+      { name: "Technical strategy", why: "Boards pay CTOs to be right about a three-year technology bet. One correct platform call is worth more than a decade of competent management." },
+      { name: "Complex problem solving", why: "Top of the O*NET profile for chief executives — and for CTOs it's existential. You're the last escalation point in the company." },
+      { name: "Capital allocation for technology", why: "Build vs. buy vs. partner decisions move eight-figure budgets. CTOs who frame them in ROIC terms get treated — and paid — like officers, not engineers." },
+      { name: "Board and investor communication", why: "A CTO who can survive a technical due-diligence grilling raises the company's valuation. That skill shows up in your equity, not your base." },
+      { name: "Security and risk governance", why: "Post-breach, the market repriced this permanently. CTOs who own risk credibly earn a resilience premium." },
+    ],
+    related: ["vp-of-engineering", "software-engineering-manager", "head-of-product"],
+    movesIt: [
+      "Cash-equity mix. The BLS spread for chief executives — $75,700 at the 10th percentile to $507,730 at the 90th — is the widest of any occupation on this site, and equity is why. Startup CTOs deliberately sit low on cash.",
+      "Founder vs. hired. A founding CTO holds 10–40x the equity of a hired one and often takes less salary. Comparing the two on base is meaningless.",
+      "Company revenue. Sub-$10M companies pay CTO cash in the low $200s; $100M+ companies clear $350–450k before equity.",
+      "Public-company exposure. SEC-reporting CTOs carry disclosure and audit liability, and their packages carry the loading for it.",
+    ],
+    negotiate: [
+      "Negotiate like an officer: employment agreement, not offer letter. Severance, change-of-control acceleration, and D&O coverage are standard at this level — asking for them signals you've been here before.",
+      "Price your equity against the next round, not the last one. Ask for the cap table math that gets you to a specific dollar outcome at the company's own target valuation.",
+      "Double-trigger acceleration is non-negotiable. A CTO is the first casualty of an acquirer with its own technology leadership.",
+      "If they balk on cash, take board exposure instead — present at every meeting, own a standing agenda item. Visibility at the board level is the comp negotiation for your next role.",
+    ],
+    faqAngle: "how equity changes total comp",
+  },
+  {
+    slug: "director-of-operations",
+    label: "Director of Operations",
+    short: "Ops Director",
+    soc: "11-1021",
+    socTitle: "General and Operations Managers",
+    titlePremium: 1.26,
+    premiumNote:
+      "Director-level operators price above the blended SOC median but below business-unit GMs.",
+    wages: { p10: 84000, p25: 105000, median: 133000, p75: 168000, p90: 214000 },
+    bls: { p10: 50090, median: 105770, p90: 253390, employment: 3503020 },
+    skills: [
+      { name: "Process optimization", why: "Directors get promoted — and paid — on documented efficiency wins. A 10% cost-to-serve reduction is a line on your comp memo, not your resume." },
+      { name: "Monitoring and KPI systems", why: "O*NET ranks monitoring high for the SOC. Executives fund leaders who can see problems before the P&L does." },
+      { name: "Cross-functional coordination", why: "Ops directors sit where sales promises meet delivery reality. The ones who reconcile the two without escalation become indispensable — the strongest comp position there is." },
+      { name: "Supply chain and vendor management", why: "Renegotiated vendor terms drop straight to margin. Post-2024 supply volatility made this a premium skill again." },
+      { name: "Systems implementation", why: "Directors who have led an ERP or WMS rollout that didn't crater carry scar tissue the market pays extra for." },
+    ],
+    related: ["general-manager", "chief-of-staff", "vp-of-finance"],
+    movesIt: [
+      "Distance from the P&L. Directors who own budget and margin targets price like junior GMs; those who run a function inside someone else's P&L price like senior managers.",
+      "Physical vs. digital operations. Multi-site physical ops (plants, warehouses, clinics) pays for complexity and liability; pure digital ops pays for scale leverage.",
+      "Company size paradox. Mid-market companies often pay directors more than enterprises do, because the director is the top operator, not a layer.",
+      "Growth vs. efficiency mandate. Directors hired to build get equity upside; directors hired to cut get cash and a shorter runway. Know which one you're being offered.",
+    ],
+    negotiate: [
+      "Get the mandate in writing before the number. 'Own operations' can mean run the machine or fix the machine — the second is worth 20% more and you should say so.",
+      "Benchmark against the GM band, not the director band, if the role has P&L accountability. Titles are cheap; scope is what you price.",
+      "Ask what the last two people in the role went on to do. If the answer is 'VP internally,' fine. If it's a shrug, negotiate severance instead of salary.",
+      "Take the bonus conversation to metrics you control. A bonus gated on company EBITDA when you run one site is a lottery ticket, not an incentive.",
+    ],
+    faqAngle: "P&L accountability vs. functional scope",
+  },
+  {
+    slug: "chief-of-staff",
+    label: "Chief of Staff",
+    short: "CoS",
+    soc: "13-1111",
+    socTitle: "Management Analysts",
+    titlePremium: 1.39,
+    premiumNote:
+      "Anchored to the management-analyst SOC per BLS mapping; executive-suite CoS roles price well above the analyst median.",
+    wages: { p10: 88000, p25: 112000, median: 142000, p75: 178000, p90: 224000 },
+    bls: { p10: 60640, median: 101860, p90: 171640, employment: 898280 },
+    skills: [
+      { name: "Executive communication", why: "The CoS writes in the CEO's voice. Companies pay for the ones who can compress a 40-slide deck into the one paragraph the board actually reads." },
+      { name: "Critical thinking", why: "O*NET's top skill for the SOC. The CoS is paid to pressure-test the principal's thinking before the market does it publicly." },
+      { name: "Program orchestration", why: "Running the operating cadence — QBRs, planning cycles, leadership offsites — is the visible half of the job and the easiest premium to defend." },
+      { name: "Discretion and judgment", why: "A CoS sees comp, M&A, and terminations before anyone else. Trust at that level has a price, and good principals pay it willingly." },
+      { name: "Analytical modeling", why: "The CoS who can build the model — not just commission it — closes the loop between question and answer in one seat. That speed is the value." },
+    ],
+    related: ["general-manager", "director-of-operations", "vp-of-finance"],
+    movesIt: [
+      "Altitude of the principal. CoS to a public-company CEO is a different labor market than CoS to a division VP — the spread between them is routinely 60%.",
+      "Operator vs. coordinator design. Roles with direct reports and owned initiatives price like directors; calendar-and-decks roles price like senior managers. The title won't tell you which; the org chart will.",
+      "Tenure expectation. The best CoS roles are explicit two-year rotations into a P&L seat. That promise has cash value — and its absence should cost the employer.",
+      "Company stage. Startup CoS roles trade cash for proximity and equity; enterprise CoS roles pay cash for process discipline.",
+    ],
+    negotiate: [
+      "Negotiate the exit before the entrance. The right ask: 'What operating role does this seat feed into, and when?' A principal who can't answer is offering you a staff job with a nicer title.",
+      "Price the ambiguity. CoS bands are the softest in the building — which means the first number is the most negotiable you'll ever see. Counter with the director band and evidence.",
+      "Get equity if the role is startup-side. You'll influence enterprise value with no P&L to point at later; equity is the only instrument that captures that.",
+      "Ask who owned this seat before and where they went. Two CoS alumni in operating roles is worth more than $20k of base — but take the $20k too.",
+    ],
+    faqAngle: "why the band is so wide",
+  },
+  {
+    slug: "head-of-product",
+    label: "Head of Product",
+    short: "Head of Product",
+    soc: "11-2021",
+    socTitle: "Marketing Managers",
+    titlePremium: 1.10,
+    premiumNote:
+      "Anchored to the closest SOC with national coverage; product leadership at software companies prices above it.",
+    wages: { p10: 118000, p25: 148000, median: 184000, p75: 228000, p90: 284000 },
+    bls: { p10: 90260, median: 166790, p90: 293610, employment: 395240 },
+    skills: [
+      { name: "Product strategy", why: "The head of product is paid for the roadmap bets that turn into revenue three quarters later. A track record of two correct bets moves you a full band." },
+      { name: "Judgment under ambiguity", why: "O*NET ranks judgment/decision-making at the top of the managerial SOCs, and product is where it's most exposed — every priority call is public inside the company." },
+      { name: "Pricing and packaging", why: "The fastest-compounding skill in the discipline. A pricing change that lifts NRR five points is worth more than any feature — CFOs remember who ran it." },
+      { name: "Customer discovery discipline", why: "Leaders who kill bad ideas early save eng-years. The market has learned to pay for the kills, not just the launches." },
+      { name: "Cross-functional leadership", why: "Product leads through influence — over engineering, design, sales. The ones who do it without escalating to the CEO get the retention grants." },
+    ],
+    related: ["chief-technology-officer", "vp-of-engineering", "director-of-data-science"],
+    movesIt: [
+      "Revenue attachment. Heads of product who own a monetization number (pricing, conversion, NRR) price a band above those who own a roadmap.",
+      "Reporting line. Reporting to the CEO signals the role is strategic; reporting into marketing or engineering signals it isn't — and the comp band follows the org chart.",
+      "PLG vs. sales-led motion. Product-led-growth companies treat product as the revenue engine and pay it like sales leadership; sales-led companies pay product like a support function.",
+      "Team of PMs vs. team of one. 'Head of' can mean eight product managers or zero. The market prices the org, not the title.",
+    ],
+    negotiate: [
+      "Establish the reporting line before the number. A CEO-reporting head of product with a small team out-earns a CMO-reporting one with a big team over any three-year window.",
+      "Attach yourself to a revenue metric in the offer conversation and price against it. 'I'll own activation-to-paid conversion' converts you from cost center to profit driver in the CFO's model.",
+      "Ask for the equity refresh policy and the last down-round history. Product equity horror stories are almost always preference-stack stories.",
+      "If the company is pre-PMF, negotiate scope insurance: a written commitment on when you hire your first PM. Otherwise you're an IC with a leadership salary — briefly.",
+    ],
+    faqAngle: "how revenue ownership changes the band",
+  },
+  {
+    slug: "svp-of-sales",
+    label: "SVP of Sales",
+    short: "SVP Sales",
+    soc: "11-2022",
+    socTitle: "Sales Managers",
+    titlePremium: 1.63,
+    premiumNote:
+      "SVP-level sales leadership prices far above the blended sales-manager SOC; figures shown are base + target bonus (OTE splits noted in-page).",
+    wages: { p10: 156000, p25: 196000, median: 242000, p75: 301000, p90: 372000 },
+    bls: { p10: 73170, median: 148270, p90: 290540, employment: 637080 },
+    skills: [
+      { name: "Revenue architecture", why: "SVPs are paid for the machine, not the quarter — segmentation, territory design, capacity math. A leader who can model the bookings plan from first principles commands the top of the band." },
+      { name: "Persuasion and negotiation", why: "O*NET's signature skills for the SOC, and at SVP level they point inward as much as outward: the comp plan you negotiate for your team determines the one you can demand for yourself." },
+      { name: "Forecast discipline", why: "CFOs pay for predictability. An SVP who calls the quarter within 5% for six straight quarters has a personal brand worth six figures." },
+      { name: "Enterprise deal leadership", why: "Eight-figure deals still get closed by humans. SVPs who personally carry the biggest logos justify OTE that looks irrational on paper." },
+      { name: "Talent recruiting", why: "The fastest way to move a number is to hire people who have done it before. SVPs with a following of proven AEs bring their pipeline with them — and price it in." },
+    ],
+    related: ["general-manager", "head-of-product", "vp-of-finance"],
+    movesIt: [
+      "OTE structure. A 50/50 base-variable split at $480k OTE and a 70/30 at $340k can pay identically in a miss year. The split is the risk profile; price it that way.",
+      "Quota-to-capacity ratio. An SVP inheriting a plan with 80% capacity coverage is being hired to miss. The savvy ones price the gap into guarantees.",
+      "New-logo vs. expansion mix. Net-new revenue is harder and pays more; renewal-heavy books justify lower variable and the market knows it.",
+      "Stage and burn. Growth-stage companies pay sales leadership top-of-market because the next round depends on the bookings curve. Profitable steady-state companies don't have to.",
+    ],
+    negotiate: [
+      "Negotiate the guarantee, not the OTE. A two-quarter ramp guarantee at full variable is standard for SVPs walking into a rebuilt territory — ask for it as a matter of course.",
+      "Audit the number before you accept it. Ask for pipeline coverage, last four quarters' attainment distribution, and rep retention. If they won't share, the plan is fiction.",
+      "Price the accelerators. Uncapped commissions with 2x accelerators above 100% is where SVP wealth actually comes from — a capped plan should cost them $50k of base.",
+      "Get equity acceleration tied to revenue milestones, not just tenure. You're the one variable most correlated with the valuation; your vesting should know that.",
+    ],
+    faqAngle: "how OTE splits change the real number",
+  },
+  {
+    slug: "vp-of-finance",
+    label: "VP of Finance",
+    short: "VP Finance",
+    soc: "11-3031",
+    socTitle: "Financial Managers",
+    titlePremium: 1.25,
+    premiumNote:
+      "VP-level finance leadership prices above the blended financial-manager SOC median.",
+    wages: { p10: 134000, p25: 168000, median: 208000, p75: 256000, p90: 318000 },
+    bls: { p10: 94310, median: 166570, p90: 323270, employment: 841710 },
+    skills: [
+      { name: "FP&A leadership", why: "The board sees the company through your model. VPs whose forecasts hold up under diligence become CFO candidates — and get paid like it preemptively." },
+      { name: "Judgment and decision making", why: "O*NET's top-ranked skill for financial managers. Finance VPs are paid to say no with a model behind it." },
+      { name: "Capital markets readiness", why: "Having taken a company through a raise, a debt facility, or an audit-committee cycle is the premium credential. It's scar tissue you can invoice." },
+      { name: "Systems and close discipline", why: "Cutting the close from 15 days to 5 is a visible, permanent win. ERP migration survivors carry a durable market premium." },
+      { name: "Business partnering", why: "The VPs who out-earn their band are the ones operators actually call before decisions. Finance that shapes the decision beats finance that reports it." },
+    ],
+    related: ["chief-of-staff", "general-manager", "director-of-operations"],
+    movesIt: [
+      "CFO-track vs. controller-track. A VP Finance who owns strategy, capital, and investor prep prices toward the CFO band; one who owns close and compliance prices toward the controller band. Same title on both doors.",
+      "Fundraising exposure. Companies within 18 months of a raise or exit pay a war-time premium for finance leadership that has done it before.",
+      "Public-company proximity. SOX, audit committees, and earnings-cycle experience add a durable 10–15% to the band, because the supply of people who have it is genuinely short.",
+      "Industry accounting complexity. Multi-entity, rev-rec-heavy, or regulated businesses (SaaS, healthcare, fintech) pay for specialized fluency.",
+    ],
+    negotiate: [
+      "Establish whether the CFO seat is real. 'VP Finance, CFO in 24 months' is worth taking below market once — with the milestone in writing. Without it, price the job as terminal.",
+      "Use the audit as leverage. If you're walking into a first audit, a systems migration, or a raise, you are the insurance policy — price the premium the way an underwriter would.",
+      "Negotiate equity like the investor you talk to. You'll see the cap table anyway; ask for it before you sign, and price your grant off the preference stack, not the option count.",
+      "Anchor against the cost of a failed hire. A bad finance leader found by the auditors costs 10x your ask. CFOs and CEOs both know it; remind them politely.",
+    ],
+    faqAngle: "CFO-track vs. controller-track pricing",
+  },
+  {
+    slug: "director-of-data-science",
+    label: "Director of Data Science",
+    short: "DS Director",
+    soc: "15-2051",
+    socTitle: "Data Scientists",
+    titlePremium: 1.57,
+    premiumNote:
+      "Director-level leadership prices well above the blended data-scientist SOC, which is IC-weighted.",
+    wages: { p10: 128000, p25: 156000, median: 189000, p75: 228000, p90: 276000 },
+    bls: { p10: 67240, median: 120230, p90: 199130, employment: 262440 },
+    skills: [
+      { name: "ML strategy and prioritization", why: "Directors are paid to kill science projects and fund revenue models. The discipline to do the first is rarer than the talent to do the second." },
+      { name: "Mathematics and statistical rigor", why: "Core to the O*NET profile — and at director level it's about being the last line of defense against a confident wrong answer reaching the board." },
+      { name: "Production ML operations", why: "Models that survive contact with production are still the exception. Directors who have operationalized ML at scale carry the market's largest skills premium in this role." },
+      { name: "Executive translation", why: "Turning model output into a decision an exec will actually make is the bottleneck skill. Directors who do it get invited to strategy; directors who don't get budget cuts." },
+      { name: "AI governance", why: "Post-2025 regulatory pressure made responsible-AI fluency a comp line item. Someone has to sign for the model's behavior; that signature costs extra." },
+    ],
+    related: ["vp-of-engineering", "chief-technology-officer", "software-engineering-manager"],
+    movesIt: [
+      "GenAI mandate. Directors owning LLM product surface are hired out of a much thinner market than analytics directors, and 2026 budgets price that scarcity aggressively.",
+      "Revenue model vs. reporting model. Teams whose models price loans, rank feeds, or detect fraud are profit centers; dashboards are overhead. Comp knows the difference to the dollar.",
+      "Team composition. Directing 25 PhDs doing applied research is a different band than directing 6 analysts — headcount quality counts as much as quantity here.",
+      "Data maturity of the company. First data leader at a data-immature company earns a pioneer premium but inherits infrastructure debt; know which side of that trade you want.",
+    ],
+    negotiate: [
+      "Price the scarcity, not the ladder. Data science leadership benchmarks lag the market by a year or more; bring current market data and make them react to it.",
+      "Negotiate compute and headcount in the offer. A director with no budget authority is a lead scientist with extra meetings — and the title won't survive the reorg.",
+      "Tie variable comp to model-attributed revenue where you can measure it. It's the strongest comp-review artifact in the building.",
+      "If the mandate is GenAI, get an explicit experimentation budget in writing. Otherwise your first year is spent negotiating for GPUs instead of shipping, and your comp review inherits the delay.",
+    ],
+    faqAngle: "why GenAI mandates reprice the role",
+  },
+  {
+    slug: "software-engineering-manager",
+    label: "Software Engineering Manager",
+    short: "SEM",
+    soc: "11-9041",
+    socTitle: "Architectural and Engineering Managers",
+    titlePremium: 1.14,
+    premiumNote:
+      "Blended anchor: 11-9041 management band cross-checked against 15-1252 (Software Developers) senior-IC overlap.",
+    wages: { p10: 132000, p25: 162000, median: 196000, p75: 238000, p90: 288000 },
+    bls: { p10: 120810, median: 171270, p90: 262760, employment: 220260 },
+    skills: [
+      { name: "Technical credibility", why: "Managers who can still read the diff get better information from their teams and better offers from the market. The role prices technical depth even when the job stops using it daily." },
+      { name: "Performance management", why: "The genuinely scarce skill. Managers who handle underperformance early — humanely and fast — save the org its most expensive failure mode, and strong VPs pay to keep them." },
+      { name: "Project and delivery management", why: "O*NET staples for the SOC. Predictable delivery is the currency managers trade for autonomy and comp." },
+      { name: "Recruiting and closing", why: "In tight markets the manager IS the closing pitch. A manager with a strong close rate is a revenue asset to the recruiting org." },
+      { name: "Incident leadership", why: "Calm command of a sev-1 is where reputations are minted. On-call orgs price this into retention grants explicitly." },
+    ],
+    related: ["vp-of-engineering", "director-of-data-science", "chief-technology-officer"],
+    movesIt: [
+      "Big-tech vs. everyone else. FAANG-tier SEM total comp can double the local market via equity; the base salary gap is much smaller. Which market you're in matters more than which city.",
+      "Team criticality. Managing the payments platform pays more than managing internal tools at the same company — accountability is priced, not headcount.",
+      "IC-manager pendulum. Managers who can credibly return to staff-IC roles hold the strongest BATNA in tech and negotiate accordingly.",
+      "Level inflation. One company's 'manager' is another's 'director.' Ignore the title; price the level by team size, scope, and reporting line.",
+    ],
+    negotiate: [
+      "Negotiate level before salary. An M1 offer at M2 scope is the oldest trick in tech comp — a leveling correction is worth more than any sign-on you'd extract.",
+      "Use the IC option openly. 'I can take a staff role at equal pay with less overhead' is the most honest leverage in the industry. Use it while it's true.",
+      "Ask about the refresh cliff. Many companies' initial grants decay after year two; the refresh policy determines whether year-three comp grows or quietly collapses.",
+      "Get team charter and on-call load in writing. A hidden 24/7 rotation is a 15% pay cut you discover after you've signed.",
+    ],
+    faqAngle: "leveling vs. salary",
+  },
+];
+
+export const execRoleBySlug = Object.fromEntries(execRoles.map(r => [r.slug, r]));

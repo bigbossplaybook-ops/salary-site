@@ -1,0 +1,240 @@
+---
+import { execRoles } from "../data/exec-roles.mjs";
+import { metros } from "../data/metros.mjs";
+import { guideBySlug, roleGuides } from "../data/guides.mjs";
+import {
+  fmt,
+  buildTheNumber,
+  buildWhatMovesIt,
+  buildSkills,
+  buildNegotiate,
+  buildRelatedIntro,
+  pickRelatedLinks,
+} from "../lib/narrative.mjs";
+
+const { role, metro, city, wages, year } = Astro.props;
+
+const theNumber = buildTheNumber({ role, metro, city, wages, year });
+const moves = buildWhatMovesIt({ role, metro, city, wages });
+const skills = buildSkills({ role, metro });
+const nego = buildNegotiate({ role, metro, city, wages });
+const relatedIntro = buildRelatedIntro({ role, city });
+const rel = pickRelatedLinks({ role, metro, execRoles, metroList: metros });
+const slugToName = (slug) =>
+  slug.split("-").slice(0, -1).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+const adjacentCityName = slugToName(rel.adjacent.slug);
+const adjacentPrevCityName = slugToName(rel.adjacentPrev.slug);
+const playbookGuides = (roleGuides[role.slug] ?? []).map((slug) => guideBySlug[slug]);
+---
+
+<div class="breadcrumb-wrap">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">›</span>
+      <span>Executive Compensation</span>
+      <span aria-hidden="true">›</span>
+      <span>{role.label} — {city.name}, {city.stateAbbr}</span>
+    </nav>
+  </div>
+</div>
+
+<div class="container exec-page" data-occupation={role.slug} data-location={metro.slug}>
+  <header class="exec-header">
+    <p class="kicker">Boss Playbook · {year} Compensation Data</p>
+    <h1>What Does a {role.label} Make in {city.name}? The {year} Answer</h1>
+    <div class="hero-stats">
+      <div class="hero-stat main">
+        <span class="hs-label">Median · {city.name}</span>
+        <span class="hs-value" data-salary="median">{fmt(wages.median)}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hs-label">25th–75th percentile</span>
+        <span class="hs-value"><span data-salary="p25">{fmt(wages.p25)}</span>–<span data-salary="p75">{fmt(wages.p75)}</span></span>
+      </div>
+      <div class="hero-stat">
+        <span class="hs-label">Top decile</span>
+        <span class="hs-value" data-salary="p90">{fmt(wages.p90)}</span>
+      </div>
+    </div>
+  </header>
+
+  <article class="exec-body">
+    <section class="card exec-section">
+      <h2>The Number</h2>
+      {theNumber.map((p) => <p>{p}</p>)}
+    </section>
+
+    <section class="card exec-section">
+      <h2>What Moves It</h2>
+      <p>{moves.intro}</p>
+      <ul class="factor-list">
+        {moves.factors.map((f) => <li>{f}</li>)}
+      </ul>
+      <p>{moves.evidence}</p>
+      <p>{moves.local}</p>
+    </section>
+
+    <section class="card exec-section">
+      <h2>Skills That Pay More</h2>
+      <p>{skills.intro}</p>
+      <dl class="skill-list">
+        {skills.skills.map((s) => (
+          <>
+            <dt>{s.name}</dt>
+            <dd>{s.why}</dd>
+          </>
+        ))}
+      </dl>
+      <p>{skills.closer}</p>
+    </section>
+
+    <section class="card exec-section">
+      <h2>How to Negotiate This Number</h2>
+      <p>{nego.intro}</p>
+      <ol class="tactic-list">
+        {nego.tactics.map((t) => <li>{t}</li>)}
+      </ol>
+      <p>{nego.closer}</p>
+    </section>
+
+    <section class="card exec-section">
+      <h2>Related Roles in {city.name}</h2>
+      <p>{relatedIntro}</p>
+      <ul class="related-roles">
+        {rel.sameCity.map((l) => (
+          <li><a href={l.href}>{l.title} salary in {city.name}, {city.stateAbbr}</a></li>
+        ))}
+        <li><a href={rel.adjacent.href}>{role.label} salary in {adjacentCityName}</a></li>
+        <li><a href={rel.adjacentPrev.href}>{role.label} salary in {adjacentPrevCityName}</a></li>
+      </ul>
+      <h3 class="playbook-h3">From the Playbook</h3>
+      <ul class="related-roles">
+        {playbookGuides.map((g) => (
+          <li><a href={`/guides/${g.slug}`}>{g.title}</a></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="cta-block">
+      <h2>Get the Full Boss Playbook</h2>
+      <p>
+        Get the full Boss Playbook compensation strategy — free weekly breakdown
+        for GMs and executives. The tactics in this guide are the public half;
+        the newsletter is where the specifics live.
+      </p>
+      <a class="cta-btn" href="/newsletter">Get the Weekly Breakdown →</a>
+      <p class="cta-social">Follow <strong>@boss.playbook</strong> for daily compensation intel.</p>
+    </section>
+
+    <p class="data-source">
+      Sources: Bureau of Labor Statistics OEWS (May 2025 national data, SOC {role.soc} — {role.socTitle});
+      skills curated from the O*NET occupational profile; local adjustment via {city.name} market index.
+      Figures refresh from the live Boss Playbook salary API where coverage exists.
+    </p>
+  </article>
+</div>
+
+<script src="/js/salary-hydrate.js" defer></script>
+
+<style>
+  .breadcrumb-wrap {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.625rem 0;
+    font-size: 0.8125rem;
+  }
+  .breadcrumb { display: flex; align-items: center; gap: 0.375rem; color: var(--color-text-muted); flex-wrap: wrap; }
+  .breadcrumb a { color: var(--color-primary); }
+
+  .exec-page { max-width: 860px; }
+  .exec-header { margin: 2.25rem 0 1.5rem; }
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+  .exec-header h1 {
+    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+  .hero-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .hero-stat {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.875rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .hero-stat.main {
+    background: linear-gradient(135deg, #111827, #1e3a8a);
+    color: white;
+    border: none;
+  }
+  .hs-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.75; }
+  .hs-value { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.02em; }
+
+  .exec-section { margin-bottom: 1.25rem; }
+  .exec-section h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.01em; }
+  .exec-section p { margin-bottom: 0.875rem; line-height: 1.7; font-size: 0.95rem; }
+  .exec-section p:last-child { margin-bottom: 0; }
+
+  .factor-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin: 0.5rem 0 1rem; }
+  .factor-list li {
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .skill-list { margin: 0.75rem 0 1rem; }
+  .skill-list dt { font-weight: 700; color: var(--color-primary); margin-top: 0.75rem; }
+  .skill-list dd { margin: 0.2rem 0 0; font-size: 0.9rem; line-height: 1.65; color: var(--color-text); }
+
+  .tactic-list { margin: 0.5rem 0 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.625rem; }
+  .tactic-list li { font-size: 0.9rem; line-height: 1.65; }
+
+  .related-roles { list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .related-roles a { font-weight: 600; }
+  .playbook-h3 {
+    margin-top: 1.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .cta-block {
+    background: linear-gradient(135deg, #111827, #1e3a8a);
+    color: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    margin: 1.5rem 0;
+  }
+  .cta-block h2 { font-size: 1.375rem; font-weight: 800; margin-bottom: 0.625rem; }
+  .cta-block p { opacity: 0.9; max-width: 520px; margin: 0 auto 1rem; font-size: 0.9375rem; line-height: 1.65; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: #111827;
+    font-weight: 800;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .cta-btn:hover { text-decoration: none; filter: brightness(1.05); }
+  .cta-social { margin-top: 1rem; font-size: 0.8125rem; opacity: 0.8; }
+
+  .data-source { font-size: 0.75rem; color: var(--color-text-muted); font-style: italic; margin: 1rem 0 2rem; }
+</style>

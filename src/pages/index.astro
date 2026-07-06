@@ -1,5 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { execRoles } from "../data/exec-roles.mjs";
+import { guides } from "../data/guides.mjs";
+
+const execFeatureMetros = [
+  "san-francisco-ca", "new-york-ny", "seattle-wa", "austin-tx", "chicago-il",
+  "boston-ma", "denver-co", "atlanta-ga", "miami-fl", "dallas-tx",
+];
 
 const jobCategories = [
   { slug: "software-developer", label: "Software Developer", icon: "💻", avgSalary: "$120,000" },
@@ -59,6 +66,33 @@ const currentYear = new Date().getFullYear();
             </a>
           ))}
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Boss Playbook Executive Compensation -->
+  <section class="exec-hub section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Executive Compensation — The Boss Playbook</h2>
+        <p>2026 pay data and negotiation strategy for GMs, VPs, and the C-suite across 50 US metros</p>
+      </div>
+      <div class="exec-grid">
+        {execRoles.map((role, i) => (
+          <a href={`/salary/${role.slug}/${execFeatureMetros[i % execFeatureMetros.length]}`} class="exec-card">
+            <span class="exec-label">{role.label}</span>
+            <span class="exec-band">Median ${(role.wages.median / 1000).toFixed(0)}k national</span>
+            <span class="cat-arrow">→</span>
+          </a>
+        ))}
+      </div>
+      <div class="guide-links">
+        <h3>The 2026 Playbooks</h3>
+        <ul>
+          {guides.map((g) => (
+            <li><a href={`/guides/${g.slug}`}>{g.title}</a></li>
+          ))}
+        </ul>
       </div>
     </div>
   </section>
@@ -209,6 +243,85 @@ const currentYear = new Date().getFullYear();
   /* Sections */
   .section {
     padding: 4rem 0;
+  }
+
+  /* Exec hub */
+  .exec-hub {
+    background: #111827;
+    color: white;
+  }
+
+  .exec-hub .section-header h2 {
+    color: white;
+  }
+
+  .exec-hub .section-header p {
+    color: #9ca3af;
+  }
+
+  .exec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .exec-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    padding: 0.875rem 1.125rem;
+    color: white;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .exec-card:hover {
+    border-color: var(--color-accent);
+    background: rgba(255,255,255,0.1);
+    text-decoration: none;
+  }
+
+  .exec-label {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .exec-band {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .guide-links h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9ca3af;
+    margin-bottom: 0.875rem;
+  }
+
+  .guide-links ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 0.5rem 1.5rem;
+  }
+
+  .guide-links a {
+    color: #d1d5db;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .guide-links a:hover {
+    color: white;
   }
 
   .section-header {

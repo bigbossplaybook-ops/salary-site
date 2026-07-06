@@ -1,1 +1,4 @@
-/* /index.html 200
+# No SPA catch-all: this is a fully static site. A previous "/* /index.html 200"
+# rule made every unknown URL soft-404 to the homepage, which breaks crawling
+# for a programmatic SEO site. Cloudflare Pages serves clean URLs for the
+# built .html files natively.

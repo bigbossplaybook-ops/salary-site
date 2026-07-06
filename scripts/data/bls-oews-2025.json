@@ -1,0 +1,89 @@
+{
+  "source": "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics (OEWS)",
+  "survey_year": "May 2025",
+  "fetched": "2026-07-06",
+  "api": "https://api.bls.gov/publicAPI/v2/timeseries/data/ (national, cross-industry)",
+  "note": "Values are national annual wages in USD. p10/p90 = 10th/90th percentile.",
+  "soc": {
+    "11-1011": {
+      "title": "Chief Executives",
+      "year": "2025",
+      "employment": 204350,
+      "p10": 75700,
+      "median": 213990,
+      "p90": 507730
+    },
+    "11-1021": {
+      "title": "General and Operations Managers",
+      "year": "2025",
+      "employment": 3503020,
+      "p10": 50090,
+      "median": 105770,
+      "p90": 253390
+    },
+    "11-2021": {
+      "title": "Marketing Managers",
+      "year": "2025",
+      "employment": 395240,
+      "p10": 90260,
+      "median": 166790,
+      "p90": 293610
+    },
+    "11-2022": {
+      "title": "Sales Managers",
+      "year": "2025",
+      "employment": 637080,
+      "p10": 73170,
+      "median": 148270,
+      "p90": 290540
+    },
+    "11-3021": {
+      "title": "Computer and Information Systems Managers",
+      "year": "2025",
+      "employment": 670570,
+      "p10": 107550,
+      "median": 175140,
+      "p90": 297510
+    },
+    "11-3031": {
+      "title": "Financial Managers",
+      "year": "2025",
+      "employment": 841710,
+      "p10": 94310,
+      "median": 166570,
+      "p90": 323270
+    },
+    "11-9041": {
+      "title": "Architectural and Engineering Managers",
+      "year": "2025",
+      "employment": 220260,
+      "p10": 120810,
+      "median": 171270,
+      "p90": 262760
+    },
+    "13-1111": {
+      "title": "Management Analysts",
+      "year": "2025",
+      "employment": 898280,
+      "p10": 60640,
+      "median": 101860,
+      "p90": 171640
+    },
+    "15-1252": {
+      "title": "Software Developers",
+      "year": "2025",
+      "employment": 1687890,
+      "p10": 82460,
+      "median": 135980,
+      "p90": 214670
+    },
+    "15-2051": {
+      "title": "Data Scientists",
+      "year": "2025",
+      "employment": 262440,
+      "p10": 67240,
+      "median": 120230,
+      "p90": 199130
+    }
+  }
+}

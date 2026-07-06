@@ -99,5 +99,11 @@
   { "slug": "mobile-al",          "name": "Mobile",         "state": "Alabama",        "stateAbbr": "AL", "costMultiplier": 0.82 },
   { "slug": "little-rock-ar",     "name": "Little Rock",    "state": "Arkansas",       "stateAbbr": "AR", "costMultiplier": 0.82 },
   { "slug": "portland-or",        "name": "Portland",       "state": "Oregon",         "stateAbbr": "OR", "costMultiplier": 1.18 },
-  { "slug": "salt-lake-city-ut",  "name": "Salt Lake City", "state": "Utah",           "stateAbbr": "UT", "costMultiplier": 1.05 }
+  { "slug": "salt-lake-city-ut",  "name": "Salt Lake City", "state": "Utah",           "stateAbbr": "UT", "costMultiplier": 1.05 },
+  { "slug": "miami-fl",           "name": "Miami",          "state": "Florida",        "stateAbbr": "FL", "costMultiplier": 1.12 },
+  { "slug": "detroit-mi",         "name": "Detroit",        "state": "Michigan",       "stateAbbr": "MI", "costMultiplier": 0.90 },
+  { "slug": "cleveland-oh",       "name": "Cleveland",      "state": "Ohio",           "stateAbbr": "OH", "costMultiplier": 0.85 },
+  { "slug": "hartford-ct",        "name": "Hartford",       "state": "Connecticut",    "stateAbbr": "CT", "costMultiplier": 1.02 },
+  { "slug": "providence-ri",      "name": "Providence",     "state": "Rhode Island",   "stateAbbr": "RI", "costMultiplier": 1.04 },
+  { "slug": "buffalo-ny",         "name": "Buffalo",        "state": "New York",       "stateAbbr": "NY", "costMultiplier": 0.88 }
 ]

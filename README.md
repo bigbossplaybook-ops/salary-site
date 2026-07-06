@@ -136,13 +136,21 @@ npm run preview   # serve dist/ locally
 
 ## Deployment
 
-Push to `main` → GitHub Actions (`.github/workflows/deploy.yml`) runs `npm ci`,
-`npm run build`, and deploys `dist/` to the Cloudflare Pages project
-`salary-site` via `cloudflare/pages-action@v1`. Requires repo secrets
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+**The deploy that actually ships is Cloudflare Pages' own git integration**:
+Cloudflare watches `main`, builds, and publishes to salary-site-49i.pages.dev.
+Verified July 2026 — every historical GitHub Actions run had failed (no repo
+secrets were ever configured) while the site still deployed via this path.
+
+GitHub Actions (`.github/workflows/deploy.yml`) runs `npm ci` + `npm run build`
+as a build gate on every push/PR. Its deploy step is skipped unless the repo
+secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured;
+add them to also deploy from Actions (project name `salary-site`).
 
 Notes: do not add a `wrangler.toml` and do not enable the `@astrojs/cloudflare`
 adapter — both previously broke Pages deploys; the site is pure static output.
+`src/pages/404.astro` must exist: without a `404.html` in the output,
+Cloudflare Pages auto-enables SPA fallback and serves the homepage with HTTP
+200 for every unknown URL (soft-404s).
 
 ## SEO surface
 

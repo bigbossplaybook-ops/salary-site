@@ -1,0 +1,33 @@
+---
+// Emits dist/404.html. Without it, Cloudflare Pages auto-enables SPA fallback
+// and serves the homepage with HTTP 200 for every unknown URL — soft-404s that
+// poison crawling for a programmatic SEO site.
+import Layout from "../layouts/Layout.astro";
+import { execRoles } from "../data/exec-roles.mjs";
+---
+
+<Layout
+  title="Page Not Found | Boss Playbook Salary Guide"
+  description="That page doesn't exist. Browse salary data for executive and professional roles across US metros."
+>
+  <div class="container nf">
+    <h1>404 — That page doesn't exist</h1>
+    <p>
+      The salary page you're looking for may have moved. Start from a role
+      instead:
+    </p>
+    <ul>
+      {execRoles.slice(0, 5).map((r) => (
+        <li><a href={`/salary/${r.slug}/new-york-ny`}>{r.label} salary data</a></li>
+      ))}
+    </ul>
+    <p><a href="/">← Back to the salary guide</a></p>
+  </div>
+</Layout>
+
+<style>
+  .nf { max-width: 640px; padding-top: 4rem; padding-bottom: 4rem; }
+  .nf h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem; }
+  .nf p { margin-bottom: 1rem; line-height: 1.7; }
+  .nf ul { margin: 0 0 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+</style>

@@ -1,0 +1,37 @@
+GOOGLE SEARCH CONSOLE — SITEMAP SUBMISSION INSTRUCTIONS
+Boss Playbook Salary Site
+=========================================================
+
+STEP 1: Go to Google Search Console
+  URL: https://search.google.com/search-console
+
+STEP 2: Add Property
+  - Click "Add property" (top left dropdown)
+  - Choose "URL prefix" type
+  - Enter: https://salary-site-49i.pages.dev
+  - Click Continue
+
+STEP 3: Verify Ownership (HTML File Method)
+  - Choose "HTML file" verification method
+  - Download the verification file (e.g., google1234abcd.html)
+  - Place the file in: salary-site/public/
+  - Commit and push to main — Cloudflare will auto-deploy
+  - Once deployed, click "Verify" in Search Console
+
+STEP 4: Submit the Sitemap
+  - In the left sidebar, click "Sitemaps"
+  - In the "Add a new sitemap" field, enter:
+      https://salary-site-49i.pages.dev/sitemap.xml
+  - Click "Submit"
+
+STEP 5: Monitor Indexing
+  - Check back in 24-48 hours for indexing status
+  - "Coverage" report will show indexed vs. excluded pages
+  - ~2,660 pages should be submitted
+
+NOTES:
+  - The sitemap is auto-generated at build time via src/pages/sitemap.xml.ts
+  - Every push to main triggers a new Cloudflare Pages deploy
+  - sitemap.xml.ts includes both legacy occupation pages AND exec salary pages
+
+CONTACT: bigbossplaybook@gmail.com

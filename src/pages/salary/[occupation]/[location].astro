@@ -196,9 +196,9 @@ const breadcrumbJsonLd = isExec ? null : {
   ],
 };
 
-const affiliateSearchUrl = isExec ? "" : `https://www.indeed.com/jobs?q=${encodeURIComponent(occupation.label)}&l=${encodeURIComponent(city.name + ", " + city.stateAbbr)}`;
-const linkedinUrl = isExec ? "" : `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(occupation.label)}&location=${encodeURIComponent(city.name + ", " + city.state)}`;
-const glassdoorUrl = isExec ? "" : `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=${encodeURIComponent(occupation.label)}&sc.keyword=${encodeURIComponent(occupation.label)}&locT=C&locId=&jobType=`;
+const affiliateSearchUrl = isExec ? "" : `https://www.indeed.com/jobs?q=${encodeURIComponent(occupation.label)}&l=${encodeURIComponent(city.name + ", " + city.stateAbbr)}&utm_source=bossplaybook&utm_medium=salary_page&utm_campaign=job_links`;
+const linkedinUrl = isExec ? "" : `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(occupation.label)}&location=${encodeURIComponent(city.name + ", " + city.state)}&utm_source=bossplaybook`;
+const glassdoorUrl = isExec ? "" : `https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=${encodeURIComponent(occupation.label)}&sc.keyword=${encodeURIComponent(occupation.label)}&locT=C&locId=&jobType=&utm_source=bossplaybook`;
 ---
 
 {isExec ? (
@@ -417,8 +417,32 @@ const glassdoorUrl = isExec ? "" : `https://www.glassdoor.com/Job/jobs.htm?sugge
             </a>
           </div>
           <p class="affiliate-note">
-            ℹ️ These links may include affiliate tracking. Using them helps support SalaryInsights at no cost to you.
+            Find open {occupation.label} roles on major job boards:
           </p>
+        </section>
+
+        <!-- Newsletter CTA + Lead Magnet -->
+        <section class="newsletter-cta-inline card" style="margin-top: 1.5rem;">
+          <h2>📄 Download Free: The Salary Negotiation Playbook for Executives</h2>
+          <p>
+            <a href="/downloads/salary-negotiation-playbook.pdf" download class="cta-download-btn">
+              Get the Free PDF →
+            </a>
+          </p>
+          <p style="margin: 1rem 0 0.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
+            Or subscribe to get weekly executive compensation intel in your inbox:
+          </p>
+          <div id="beehiiv-embed-salary"></div>
+          <script src="https://embeds.beehiiv.com/attribution.js"></script>
+          <iframe
+            src="https://embeds.beehiiv.com/pub_61abbf38-efab-4318-9706-bbda7ab10dfb"
+            data-test-id="beehiiv-embed"
+            height="320"
+            width="100%"
+            frameborder="0"
+            scrolling="no"
+            style="border-radius: 4px; border: 2px solid #e5e7eb; margin: 0; background-color: transparent;"
+          ></iframe>
         </section>
 
       </div>

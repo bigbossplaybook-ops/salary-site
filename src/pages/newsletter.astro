@@ -15,18 +15,21 @@ import Layout from "../layouts/Layout.astro";
       Written by operators, backed by data. Free.
     </p>
 
-    <form
-      class="signup"
-      name="newsletter-signup"
-      method="POST"
-      action="mailto:signup@bossplaybook.example?subject=Newsletter%20Signup"
-      enctype="text/plain"
-    >
-      <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address" />
-      <button type="submit">Get the Breakdown →</button>
-    </form>
+    <!-- Beehiiv Email Signup Embed -->
+    <div id="beehiiv-embed"></div>
+    <script src="https://embeds.beehiiv.com/attribution.js"></script>
+    <iframe
+      src="https://embeds.beehiiv.com/pub_61abbf38-efab-4318-9706-bbda7ab10dfb"
+      data-test-id="beehiiv-embed"
+      height="320"
+      width="100%"
+      frameborder="0"
+      scrolling="no"
+      style="border-radius: 4px; border: 2px solid #e5e7eb; margin: 0; background-color: transparent;"
+    ></iframe>
+
     <p class="note">
-      Or follow <strong>@boss.playbook</strong> for daily compensation intel.
+      Or follow <strong>@boss.playbook</strong> on Instagram for daily compensation intel.
     </p>
 
     <div class="proof card">
@@ -35,6 +38,31 @@ import Layout from "../layouts/Layout.astro";
         <li>The real 2026 bands for exec roles across 50 US metros — anchored to BLS data, not vibes.</li>
         <li>One negotiation tactic per issue, with the exact language that works at the executive level.</li>
         <li>Equity math explained the way an investor would: 409A, preference stacks, refresh cliffs.</li>
+      </ul>
+    </div>
+
+    <div class="downloads card">
+      <h2>Free Executive Resources</h2>
+      <p>Download our free lead magnets — packed with frameworks and tactics you can use immediately.</p>
+      <ul class="download-list">
+        <li>
+          <a href="/downloads/salary-negotiation-playbook.pdf" download class="download-link">
+            📄 The Salary Negotiation Playbook for Executives
+            <span class="dl-badge">Free PDF</span>
+          </a>
+        </li>
+        <li>
+          <a href="/downloads/gm-90-day-ramp.docx" download class="download-link">
+            📄 The GM 90-Day Ramp Playbook
+            <span class="dl-badge">Free Download</span>
+          </a>
+        </li>
+        <li>
+          <a href="/downloads/exec-comp-truths.docx" download class="download-link">
+            📄 Executive Comp Truths They Don't Tell You
+            <span class="dl-badge">Free Download</span>
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -48,19 +76,24 @@ import Layout from "../layouts/Layout.astro";
   }
   h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
   .lede { color: var(--color-text-muted); font-size: 1.0625rem; line-height: 1.7; margin-bottom: 2rem; }
-  .signup { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
-  .signup input {
-    flex: 1; min-width: 240px; padding: 0.75rem 1rem; border: 1px solid var(--color-border);
-    border-radius: 999px; font-size: 0.9375rem;
-  }
-  .signup button {
-    background: var(--color-primary); color: white; font-weight: 700; border: none;
-    padding: 0.75rem 1.5rem; border-radius: 999px; font-size: 0.9375rem; cursor: pointer;
-  }
-  .signup button:hover { background: var(--color-primary-dark); }
   .note { margin-top: 1rem; font-size: 0.875rem; color: var(--color-text-muted); }
   .proof { margin-top: 2.5rem; text-align: left; }
   .proof h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.75rem; }
   .proof ul { margin-left: 1.25rem; display: flex; flex-direction: column; gap: 0.625rem; }
   .proof li { line-height: 1.65; font-size: 0.9375rem; }
+  .downloads { margin-top: 2rem; text-align: left; }
+  .downloads h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .downloads p { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem; }
+  .download-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+  .download-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1rem; background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: var(--radius); font-weight: 600; color: var(--color-primary);
+    text-decoration: none; gap: 0.5rem;
+  }
+  .download-link:hover { background: #e0f2fe; text-decoration: none; }
+  .dl-badge {
+    font-size: 0.7rem; font-weight: 700; background: var(--color-primary);
+    color: white; padding: 0.2rem 0.5rem; border-radius: 999px; white-space: nowrap;
+  }
 </style>

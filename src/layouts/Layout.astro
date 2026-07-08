@@ -24,7 +24,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:site_name" content="SalaryInsights" />
+    <meta property="og:site_name" content="Boss Playbook" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -37,6 +37,15 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    <!-- Google Analytics 4 — REPLACE G-BOSSPLAYBOOK1 WITH REAL GA4 ID FROM analytics.google.com -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BOSSPLAYBOOK1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BOSSPLAYBOOK1');
+    </script>
+
     <!-- JSON-LD Structured Data -->
     {jsonLd && (
       <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -45,9 +54,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <body>
     <header class="site-header">
       <div class="container">
-        <a href="/" class="logo">💼 SalaryInsights</a>
+        <a href="/" class="logo">💼 Boss Playbook</a>
         <nav>
           <a href="/">Home</a>
+          <a href="/newsletter">Newsletter</a>
+          <a href="/subscribe">API</a>
           <a href="#categories">Categories</a>
         </nav>
       </div>
@@ -60,7 +71,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     <footer class="site-footer">
       <div class="container">
         <p>
-          &copy; {new Date().getFullYear()} SalaryInsights. Data sourced from Bureau of Labor Statistics.
+          &copy; {new Date().getFullYear()} Boss Playbook. Data sourced from Bureau of Labor Statistics.
         </p>
         <p>
           <a href="/privacy">Privacy Policy</a> &middot;

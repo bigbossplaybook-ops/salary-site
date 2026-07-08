@@ -1,0 +1,185 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Boss Playbook Salary API — Pricing & Access"
+  description="Access real-time executive salary data via the Boss Playbook API. Free tier available. Pro plans starting at $9.99/month on RapidAPI."
+>
+  <div class="container sub-page">
+    <p class="kicker">Boss Playbook API</p>
+    <h1>Executive Salary Data API</h1>
+    <p class="lede">
+      Programmatic access to executive compensation data for 50 US metros and 10+ exec roles.
+      Free tier available — no credit card required.
+    </p>
+
+    <div class="plans-grid">
+      <div class="plan-card card">
+        <div class="plan-header">
+          <h2>Free</h2>
+          <p class="plan-price">$0<span>/month</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>✓ Basic salary lookup</li>
+          <li>✓ 10 cities</li>
+          <li>✓ 100 requests/hour</li>
+          <li>✓ JSON responses</li>
+        </ul>
+        <a href="https://rapidapi.com/bigbossplaybook-ops/api/salary-data" target="_blank" rel="noopener" class="plan-btn plan-btn-free">
+          Get Free Access →
+        </a>
+      </div>
+
+      <div class="plan-card card plan-featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-header">
+          <h2>Basic</h2>
+          <p class="plan-price">$9.99<span>/month</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>✓ All cities (50+ metros)</li>
+          <li>✓ All exec roles</li>
+          <li>✓ Percentile data (p10–p90)</li>
+          <li>✓ 1,000 requests/hour</li>
+        </ul>
+        <a href="https://rapidapi.com/bigbossplaybook-ops/api/salary-data" target="_blank" rel="noopener" class="plan-btn plan-btn-primary">
+          Subscribe on RapidAPI →
+        </a>
+      </div>
+
+      <div class="plan-card card">
+        <div class="plan-header">
+          <h2>Pro</h2>
+          <p class="plan-price">$49<span>/month</span></p>
+        </div>
+        <ul class="plan-features">
+          <li>✓ Everything in Basic</li>
+          <li>✓ Bulk export</li>
+          <li>✓ 10,000 requests/hour</li>
+          <li>✓ Priority support</li>
+        </ul>
+        <a href="https://rapidapi.com/bigbossplaybook-ops/api/salary-data" target="_blank" rel="noopener" class="plan-btn plan-btn-pro">
+          Go Pro →
+        </a>
+      </div>
+    </div>
+
+    <div class="api-docs card">
+      <h2>API Reference</h2>
+      <p>Base URL: <code>https://web-production-d6bdb.up.railway.app</code></p>
+
+      <div class="endpoint">
+        <h3><span class="method">GET</span> /salary</h3>
+        <p>Get salary data for a specific occupation and location.</p>
+        <pre><code>GET /salary?occupation=general-manager&location=new-york-ny
+
+Response:
+&#123;
+  "occupation_slug": "general-manager",
+  "occupation_label": "General Manager",
+  "location_slug": "new-york-ny",
+  "city": "New York",
+  "wages": &#123;
+    "p10": 98000,
+    "p25": 130000,
+    "median": 175000,
+    "p75": 225000,
+    "p90": 285000
+  &#125;
+&#125;</code></pre>
+      </div>
+
+      <div class="endpoint">
+        <h3><span class="method">GET</span> /occupations</h3>
+        <p>List all available occupations. Optional <code>?q=</code> filter.</p>
+      </div>
+
+      <div class="endpoint">
+        <h3><span class="method">GET</span> /locations</h3>
+        <p>List all available locations. Optional <code>?state=CA</code> filter.</p>
+      </div>
+
+      <div class="endpoint">
+        <h3><span class="method">GET</span> /compare</h3>
+        <p>Compare one occupation across multiple cities.</p>
+        <pre><code>GET /compare?occupation=general-manager&locations=new-york-ny,san-francisco-ca,chicago-il</code></pre>
+      </div>
+
+      <div class="endpoint">
+        <h3><span class="method">GET</span> /pricing</h3>
+        <p>Returns current pricing plans in JSON format.</p>
+      </div>
+
+      <p style="margin-top: 1.5rem;">
+        Full interactive docs: <a href="https://web-production-d6bdb.up.railway.app/docs" target="_blank" rel="noopener">web-production-d6bdb.up.railway.app/docs</a>
+      </p>
+    </div>
+
+    <div class="contact-block card">
+      <h2>Questions?</h2>
+      <p>
+        Email us at <a href="mailto:bigbossplaybook@gmail.com">bigbossplaybook@gmail.com</a> or
+        <a href="https://rapidapi.com/bigbossplaybook-ops/api/salary-data" target="_blank" rel="noopener">sign up on RapidAPI</a>.
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .sub-page { max-width: 900px; padding-top: 3rem; }
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem;
+    font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem;
+  }
+  h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .lede { color: var(--color-text-muted); font-size: 1.0625rem; line-height: 1.7; margin-bottom: 2.5rem; }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .plan-card { position: relative; padding: 2rem; }
+  .plan-featured { border-color: var(--color-primary); border-width: 2px; }
+  .plan-badge {
+    position: absolute; top: -0.75rem; left: 50%; transform: translateX(-50%);
+    background: var(--color-primary); color: white; font-size: 0.7rem;
+    font-weight: 700; padding: 0.2rem 0.75rem; border-radius: 999px; white-space: nowrap;
+  }
+
+  .plan-header { text-align: center; margin-bottom: 1.5rem; }
+  .plan-header h2 { font-size: 1.375rem; font-weight: 800; margin-bottom: 0.25rem; }
+  .plan-price { font-size: 2rem; font-weight: 900; color: var(--color-primary); }
+  .plan-price span { font-size: 0.875rem; color: var(--color-text-muted); font-weight: 400; }
+
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .plan-features li { font-size: 0.9375rem; }
+
+  .plan-btn {
+    display: block; text-align: center; padding: 0.75rem 1.25rem;
+    border-radius: 999px; font-weight: 700; text-decoration: none; transition: filter 0.15s;
+  }
+  .plan-btn:hover { text-decoration: none; filter: brightness(0.92); }
+  .plan-btn-free { background: #f3f4f6; color: var(--color-text); border: 1px solid var(--color-border); }
+  .plan-btn-primary { background: var(--color-primary); color: white; }
+  .plan-btn-pro { background: #111827; color: white; }
+
+  .api-docs { margin-bottom: 2rem; }
+  .api-docs h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; }
+  .api-docs > p { margin-bottom: 1.25rem; }
+  code { background: #f3f4f6; padding: 0.1em 0.4em; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+
+  .endpoint { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
+  .endpoint:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .endpoint h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+  .method { background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 4px; }
+  .endpoint p { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 0.5rem; }
+  pre { background: #f8fafc; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.6; margin-top: 0.5rem; }
+  pre code { background: none; padding: 0; }
+
+  .contact-block { text-align: center; }
+  .contact-block h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+</style>

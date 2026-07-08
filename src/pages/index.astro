@@ -43,8 +43,8 @@ const currentYear = new Date().getFullYear();
 ---
 
 <Layout
-  title={`US Salary Guide ${currentYear} — Salaries by Job & City`}
-  description={`Explore average salaries for hundreds of occupations across 100+ US cities. Find out what you should be earning in ${currentYear} with our free salary guide.`}
+  title={`Executive Salary Intelligence — Boss Playbook | ${currentYear} Salary Guide`}
+  description={`Executive Salary Intelligence — Boss Playbook. Real compensation data for GMs, VPs, and C-suite executives across 50 US metros. Free weekly newsletter.`}
 >
   <!-- Hero -->
   <section class="hero">
@@ -123,7 +123,7 @@ const currentYear = new Date().getFullYear();
   <section class="why-us section">
     <div class="container">
       <div class="section-header">
-        <h2>Why SalaryInsights?</h2>
+        <h2>Why Boss Playbook?</h2>
       </div>
       <div class="features-grid">
         <div class="feature-card card">
@@ -165,6 +165,34 @@ const currentYear = new Date().getFullYear();
           ))
         )}
       </div>
+    </div>
+  </section>
+
+  <!-- Newsletter CTA with Beehiiv Embed -->
+  <section class="newsletter-cta section">
+    <div class="container" style="max-width: 640px; text-align: center;">
+      <p class="kicker-label">Boss Playbook Newsletter</p>
+      <h2>Get Weekly Executive Compensation Intel</h2>
+      <p class="nl-sub">
+        Real salary data, negotiation tactics, and equity frameworks — free, every week.
+        Written for GMs, VPs, and the C-suite.
+      </p>
+      <div id="beehiiv-embed-home"></div>
+      <script src="https://embeds.beehiiv.com/attribution.js"></script>
+      <iframe
+        src="https://embeds.beehiiv.com/pub_61abbf38-efab-4318-9706-bbda7ab10dfb"
+        data-test-id="beehiiv-embed"
+        height="320"
+        width="100%"
+        frameborder="0"
+        scrolling="no"
+        style="border-radius: 4px; border: 2px solid #e5e7eb; margin: 0; background-color: transparent;"
+      ></iframe>
+      <p style="margin-top: 1rem; font-size: 0.875rem;">
+        <a href="/downloads/salary-negotiation-playbook.pdf" download style="font-weight: 700;">
+          📄 Download Free: The Salary Negotiation Playbook for Executives →
+        </a>
+      </p>
     </div>
   </section>
 </Layout>
